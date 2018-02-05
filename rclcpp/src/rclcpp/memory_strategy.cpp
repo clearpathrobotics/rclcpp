@@ -18,7 +18,8 @@ using rclcpp::memory_strategy::MemoryStrategy;
 
 rclcpp::SubscriptionBase::SharedPtr
 MemoryStrategy::get_subscription_by_handle(
-  const rcl_subscription_t * subscriber_handle, const WeakNodeVector & weak_nodes)
+  std::shared_ptr<const rcl_subscription_t> subscriber_handle,
+  const WeakNodeVector & weak_nodes)
 {
   for (auto & weak_node : weak_nodes) {
     auto node = weak_node.lock();
@@ -48,7 +49,7 @@ MemoryStrategy::get_subscription_by_handle(
 
 rclcpp::ServiceBase::SharedPtr
 MemoryStrategy::get_service_by_handle(
-  const rcl_service_t * service_handle,
+  std::shared_ptr<const rcl_service_t> service_handle,
   const WeakNodeVector & weak_nodes)
 {
   for (auto & weak_node : weak_nodes) {
@@ -74,7 +75,7 @@ MemoryStrategy::get_service_by_handle(
 
 rclcpp::ClientBase::SharedPtr
 MemoryStrategy::get_client_by_handle(
-  const rcl_client_t * client_handle,
+  std::shared_ptr<const rcl_client_t> client_handle,
   const WeakNodeVector & weak_nodes)
 {
   for (auto & weak_node : weak_nodes) {
