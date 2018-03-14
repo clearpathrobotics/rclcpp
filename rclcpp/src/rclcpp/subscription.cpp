@@ -14,6 +14,7 @@
 
 #include "rclcpp/subscription.hpp"
 
+#include <assert.h>
 #include <rcutils/logging_macros.h>
 
 #include <cstdio>
@@ -22,6 +23,7 @@
 
 #include "rclcpp/exceptions.hpp"
 #include "rclcpp/expand_topic_or_service_name.hpp"
+#include "rclcpp/logging.hpp"
 
 #include "rmw/error_handling.h"
 #include "rmw/rmw.h"
@@ -35,14 +37,24 @@ SubscriptionBase::SubscriptionBase(
   const rcl_subscription_options_t & subscription_options)
 : node_handle_(node_handle)
 {
+  std::weak_ptr<rcl_node_t> weak_node_handle(node_handle_);
   auto custom_deletor = [ = ](rcl_subscription_t * rcl_subs)
     {
-      if (rcl_subscription_fini(rcl_subs, node_handle_.get()) != RCL_RET_OK) {
-        RCUTILS_LOG_ERROR_NAMED(
-          "rclcpp",
-          "Error in destruction of rcl subscription handle: %s",
-          rcl_get_error_string_safe());
-        rcl_reset_error();
+      auto handle = weak_node_handle.lock();
+      if (handle) {
+        if (rcl_subscription_fini(rcl_subs, handle.get()) != RCL_RET_OK) {
+          RCLCPP_ERROR(
+            rclcpp::get_logger(rcl_node_get_name(handle.get())).get_child("rclcpp"),
+            "Error in destruction of rcl subscription handle: %s",
+            rcl_get_error_string_safe());
+          rcl_reset_error();
+        }
+      } else {
+        RCLCPP_ERROR(
+          rclcpp::get_logger("rclcpp"),
+          "Error in destruction of rcl subscription handle: "
+          "the Node Handle was destructed too early. You will leak memory");
+        assert(false);
       }
       delete rcl_subs;
     };
