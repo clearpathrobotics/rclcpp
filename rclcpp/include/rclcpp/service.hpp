@@ -15,8 +15,6 @@
 #ifndef RCLCPP__SERVICE_HPP_
 #define RCLCPP__SERVICE_HPP_
 
-#include <assert.h>
-
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -133,11 +131,10 @@ public:
             rcl_reset_error();
           }
         } else {
-          RCLCPP_ERROR(
+          RCLCPP_FATAL(
             rclcpp::get_logger("rclcpp"),
             "Error in destruction of rcl service handle: "
             "the Node Handle was destructed too early. You will leak memory");
-          assert(false);
         }
         delete service;
       });

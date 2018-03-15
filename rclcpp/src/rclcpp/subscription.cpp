@@ -14,9 +14,6 @@
 
 #include "rclcpp/subscription.hpp"
 
-#include <assert.h>
-#include <rcutils/logging_macros.h>
-
 #include <cstdio>
 #include <memory>
 #include <string>
@@ -50,11 +47,10 @@ SubscriptionBase::SubscriptionBase(
           rcl_reset_error();
         }
       } else {
-        RCLCPP_ERROR(
+        RCLCPP_FATAL(
           rclcpp::get_logger("rclcpp"),
           "Error in destruction of rcl subscription handle: "
           "the Node Handle was destructed too early. You will leak memory");
-        assert(false);
       }
       delete rcl_subs;
     };

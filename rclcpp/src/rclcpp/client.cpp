@@ -14,8 +14,6 @@
 
 #include "rclcpp/client.hpp"
 
-#include <assert.h>
-
 #include <chrono>
 #include <cstdio>
 #include <memory>
@@ -55,11 +53,10 @@ ClientBase::ClientBase(
           rcl_reset_error();
         }
       } else {
-        RCLCPP_ERROR(
+        RCLCPP_FATAL(
           rclcpp::get_logger("rclcpp"),
           "Error in destruction of rcl client handle: "
           "the Node Handle was destructed too early. You will leak memory");
-        assert(false);
       }
       delete client;
     });
